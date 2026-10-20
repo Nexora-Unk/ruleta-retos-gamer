@@ -44,19 +44,26 @@ canvas#w{position:relative;z-index:1;width:100%;height:auto;display:block;filter
 :focus-visible{outline:2px solid var(--c2);outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
 .row>.btn{flex:0 1 auto}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;padding:5px;background:#05040e;border:1px solid var(--bd);border-radius:16px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:12px;border:0;background:transparent;color:var(--mu);cursor:pointer;font:inherit;font-size:11.5px;font-weight:600;min-height:52px;transition:background .15s,color .15s}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:14px;padding:5px;background:#05040e;border:1px solid var(--bd);border-radius:16px}
+.tab{display:flex;min-width:0;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:12px;border:0;background:transparent;color:var(--mu);cursor:pointer;font:inherit;font-size:11.5px;font-weight:600;min-height:52px;transition:background .15s,color .15s}
 .tab i{font-style:normal;font-size:18px}
 .tab:hover{color:#fff}
 .tab.on{background:linear-gradient(135deg,#b052f540,#18d6ee26);color:#fff;box-shadow:inset 0 0 0 1px #b052f5aa}
-@media(min-width:520px){.tab{flex-direction:row;justify-content:center;gap:6px;font-size:12.5px}.tab i{font-size:15px}}
-@media(min-width:520px) and (max-width:900px){.tab span{display:inline}}
+.tab span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:380px){.tab{font-size:10.5px}}
 .pg{display:none}.pg.on{display:block;animation:fd .25s ease}
 @keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 input,select,textarea{width:100%;background:#06050f;color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;transition:border-color .15s,box-shadow .15s}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--c1);box-shadow:0 0 0 3px #b052f533}
 input[type=range]{padding:0;accent-color:var(--c1)}
-#dur{width:min(240px,100%)!important}
+.dur{max-width:380px;margin:8px auto 0;padding:12px 16px 14px;border:1px solid var(--bd);border-radius:16px;background:linear-gradient(160deg,#120d2a,#06050f)}
+.dh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mu);margin-bottom:12px;font-weight:600}
+.dh b{background:linear-gradient(120deg,var(--c1),var(--c3));color:#fff;border-radius:99px;padding:3px 13px;font-size:13px;box-shadow:0 2px 12px #b052f544}
+.dh em{font-style:normal}
+#dur{-webkit-appearance:none;appearance:none;display:block;width:100%;height:8px;padding:0;border:0;border-radius:99px;background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)) left center/var(--p,30%) 100% no-repeat,#1a1535;box-shadow:none;cursor:pointer}
+#dur::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:5px solid var(--c1);box-shadow:0 0 14px var(--c3);cursor:grab}
+#dur::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:5px solid var(--c1);box-shadow:0 0 14px var(--c3);cursor:grab}
+#dur::-moz-range-track{background:transparent}
 input[type=checkbox]{accent-color:var(--c1);width:auto;margin:0}
 label{font-size:12.5px;color:var(--mu);display:block;margin-top:4px}
 label:has(input[type=checkbox]){display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--bd);border-radius:99px;background:#06050f;color:var(--tx);cursor:pointer;margin:0}
@@ -103,7 +110,7 @@ footer{text-align:center;color:var(--mu);font-size:12px;padding:10px 10px 26px}
 <label><input type="checkbox" id="elim" style="width:auto"> Eliminar al salir</label>
 <label><input type="checkbox" id="snd" style="width:auto" checked> Sonido</label>
 </div>
-<div class="row" style="justify-content:center;align-items:center"><label>Duración: <b id="dv">6</b>s</label><input type="range" id="dur" min="2" max="15" value="6" style="width:160px"></div>
+<div class="dur"><div class="dh"><span>⏱ Duración del giro</span><b><em id="dv">6</em>s</b></div><input type="range" id="dur" min="2" max="15" value="6" aria-label="Duración del giro en segundos"></div>
 </section>
 
 <section class="panel">
@@ -241,7 +248,7 @@ $('#txt').oninput=e=>{S.items=parse(e.target.value);save();rend();draw()};
 $('#wname').oninput=e=>{S.name=e.target.value;save()};
 $('#shuf').onclick=()=>{for(let i=S.items.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[S.items[i],S.items[j]]=[S.items[j],S.items[i]]}setItems(S.items)};
 $('#elim').onchange=e=>{S.elim=e.target.checked;save()};$('#snd').onchange=e=>{S.snd=e.target.checked;save()};
-$('#dur').oninput=e=>{S.dur=+e.target.value;$('#dv').textContent=S.dur;save()};
+$('#dur').oninput=e=>{e.target.style.setProperty('--p',(e.target.value-2)/13*100+'%');S.dur=+e.target.value;$('#dv').textContent=S.dur;save()};
 $$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.pg').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p))});
 // retos
 let cur='',tI;const rnd=a=>a[Math.random()*a.length|0];
@@ -268,7 +275,7 @@ $('#saved').onclick=e=>{const l=e.target.dataset.ld,d=e.target.dataset.dl;if(l&&
 $('#exp').onclick=async()=>{const c=btoa(unescape(encodeURIComponent(JSON.stringify({n:S.name,i:S.items}))));try{await navigator.clipboard.writeText(c);$('#exp').textContent='✅ Copiado'}catch(e){prompt('Copiá este código:',c)}setTimeout(()=>$('#exp').textContent='📋 Copiar código',1500)};
 $('#impb').onclick=()=>{try{const d=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));setItems(d.i.map(o=>({t:String(o.t),w:+o.w||1})),d.n);$('#imp').value=''}catch(e){alert('Código inválido')}};
 $('#hclr').onclick=()=>{S.hist=[];save();rend()};
-$('#wname').value=S.name;$('#elim').checked=S.elim;$('#snd').checked=S.snd;$('#dur').value=S.dur;$('#dv').textContent=S.dur;$('#txt').value=toTxt(S.items);
+$('#wname').value=S.name;$('#elim').checked=S.elim;$('#snd').checked=S.snd;$('#dur').value=S.dur;$('#dur').style.setProperty('--p',(S.dur-2)/13*100+'%');$('#dv').textContent=S.dur;$('#txt').value=toTxt(S.items);
 rend();draw();
 </script>
 </body>
